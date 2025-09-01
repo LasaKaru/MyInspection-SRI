@@ -770,6 +770,59 @@ reportGroup.MapGet("/{reportId:guid}", async (Guid reportId, ApplicationDbContex
     return Results.Ok(reportDto);
 });
 
+
+reportGroup.MapPut("/{reportId:guid}", async (Guid reportId, FullReportDto updatedReportDto, ApplicationDbContext dbContext) =>
+{
+    // Find the existing report and its related items
+    var report = await dbContext.InspectionReports
+        .Include(r => r.QuantityItems)
+        .Include(r => r.Defects)
+        .FirstOrDefaultAsync(r => r.ReportID == reportId);
+
+    if (report == null)
+    {
+        return Results.NotFound();
+    }
+
+    // Update the main report properties
+    report.OverallStatus = updatedReportDto.OverallStatus;
+    report.LastModifiedAt = DateTime.UtcNow;
+
+    // Update, Add, or Remove Quantity Items
+    // This is a simple but effective way to sync the child collections
+    dbContext.ReportQuantityItems.RemoveRange(report.QuantityItems); // Remove old ones
+    foreach (var itemDto in updatedReportDto.QuantityItems)
+    {
+        report.QuantityItems.Add(new ReportQuantityItem
+        {
+            StyleArticle = itemDto.StyleArticle,
+            PONumber = itemDto.PONumber,
+            OrderQuantity = itemDto.OrderQuantity,
+            InspectedQtyPacked = itemDto.InspectedQtyPacked,
+            InspectedQtyNotPacked = itemDto.InspectedQtyNotPacked,
+            CartonsPacked = itemDto.CartonsPacked,
+            CartonsNotPacked = itemDto.CartonsNotPacked
+        });
+    }
+
+    // Update, Add, or Remove Defects
+    dbContext.ReportDefects.RemoveRange(report.Defects); // Remove old ones
+    foreach (var defectDto in updatedReportDto.Defects)
+    {
+        report.Defects.Add(new ReportDefect
+        {
+            DefectDescription = defectDto.DefectDescription,
+            CriticalCount = defectDto.CriticalCount,
+            MajorCount = defectDto.MajorCount,
+            MinorCount = defectDto.MinorCount
+        });
+    }
+
+    await dbContext.SaveChangesAsync();
+
+    return Results.NoContent(); // 204 NoContent is a standard response for a successful PUT
+});
+
 //reportGroup.MapPost("/start", async (
 //    StartInspectionDto startDto,
 //    IOracleService oracleService,
