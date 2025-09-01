@@ -18,9 +18,25 @@ namespace MyInspection.Infrastructure.Data
         }
 
         // Add DbSets for your other entities here
-        public DbSet<Customer> Customers { get; set; }
-        public DbSet<InspectionReport> InspectionReports { get; set; }
+        //public DbSet<Customer> Customers { get; set; }
+        //public DbSet<InspectionReport> InspectionReports { get; set; }
         // ... and so on for all your other tables
+        // Add DbSets for all your custom entities
+        public DbSet<Customer> Customers { get; set; }
+        public DbSet<CustomerType> CustomerTypes { get; set; }
+        public DbSet<InspectionReport> InspectionReports { get; set; }
+        public DbSet<ReportDetails> ReportDetails { get; set; }
+        public DbSet<MasterCriteria> MasterCriteria { get; set; }
+        public DbSet<ReportCriteriaStatus> ReportCriteriaStatuses { get; set; }
+        public DbSet<Checkpoint> Checkpoints { get; set; }
+        public DbSet<ReportCheckpointAnswer> ReportCheckpointAnswers { get; set; }
+        public DbSet<ReportQuantityItem> ReportQuantityItems { get; set; }
+        public DbSet<ReportDefect> ReportDefects { get; set; }
+        public DbSet<ReportMedia> ReportMediaFiles { get; set; }
+        public DbSet<AQLLevel> AQLLevels { get; set; }
+        public DbSet<AQLDetails> AQLDetails { get; set; }
+        public DbSet<AuditLog> AuditLogs { get; set; }
+        public DbSet<ReportOverride> ReportOverrides { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -36,6 +52,14 @@ namespace MyInspection.Infrastructure.Data
             builder.Entity<IdentityUserToken<int>>().ToTable("UserTokens");
 
             // Configure any other custom relationships or constraints here
+
+            // Here you can add any specific configurations (Fluent API)
+            // For example, setting up a one-to-one relationship for ReportDetails
+            builder.Entity<InspectionReport>()
+                .HasOne(r => r.ReportDetails)
+                .WithOne(d => d.InspectionReport)
+                .HasForeignKey<ReportDetails>(d => d.ReportID);
         }
-    }
+    }      
+    
 }
