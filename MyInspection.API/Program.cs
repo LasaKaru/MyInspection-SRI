@@ -725,6 +725,51 @@ reportGroup.MapPost("/start", async (
     return Results.Created($"/api/reports/{response.ReportId}", response);
 });
 
+reportGroup.MapGet("/{reportId:guid}", async (Guid reportId, ApplicationDbContext dbContext) =>
+{
+    var report = await dbContext.InspectionReports
+        .Include(r => r.ReportDetails)       // Load the related details
+        .Include(r => r.QuantityItems)      // Load the related quantity items
+        .Include(r => r.Defects)            // Load the related defects
+        .FirstOrDefaultAsync(r => r.ReportID == reportId);
+
+    if (report == null)
+    {
+        return Results.NotFound();
+    }
+
+    // Map the entity to our DTO to send back to the client
+    var reportDto = new FullReportDto
+    {
+        ReportId = report.ReportID,
+        PurchaseOrderNumber = report.PurchaseOrderNumber,
+        SblOrderNumber = report.SBLOrderNumber ?? string.Empty,
+        ProductDescription = report.ReportDetails?.ProductDescription ?? string.Empty,
+        OverallStatus = report.OverallStatus,
+        QuantityItems = report.QuantityItems.Select(qi => new ReportQuantityItemDto
+        {
+            Id = qi.ReportQuantityItemID,
+            StyleArticle = qi.StyleArticle,
+            PONumber = qi.PONumber,
+            OrderQuantity = qi.OrderQuantity,
+            InspectedQtyPacked = qi.InspectedQtyPacked,
+            InspectedQtyNotPacked = qi.InspectedQtyNotPacked,
+            CartonsPacked = qi.CartonsPacked,
+            CartonsNotPacked = qi.CartonsNotPacked
+        }).ToList(),
+        Defects = report.Defects.Select(d => new ReportDefectDto
+        {
+            Id = d.DefectID,
+            DefectDescription = d.DefectDescription,
+            CriticalCount = d.CriticalCount,
+            MajorCount = d.MajorCount,
+            MinorCount = d.MinorCount
+        }).ToList()
+    };
+
+    return Results.Ok(reportDto);
+});
+
 //reportGroup.MapPost("/start", async (
 //    StartInspectionDto startDto,
 //    IOracleService oracleService,
