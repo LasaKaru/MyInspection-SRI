@@ -32,8 +32,16 @@ namespace MyInspection.Infrastructure.Services
         {
             var claims = new List<Claim>
             {
-                new Claim(JwtRegisteredClaimNames.Email, user.Email),
-                new Claim(JwtRegisteredClaimNames.GivenName, user.UserName)
+                //new Claim(JwtRegisteredClaimNames.Email, user.Email),
+                //new Claim(JwtRegisteredClaimNames.GivenName, user.UserName)
+                // THIS IS THE CRITICAL FIX: Add the User ID
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                
+                // It's also good practice to use Name instead of GivenName for the username
+                new Claim(ClaimTypes.Name, user.UserName),
+
+                // JwtRegisteredClaimNames are standardized, but ClaimTypes are more common in .NET
+                new Claim(JwtRegisteredClaimNames.Email, user.Email)
             };
 
             var creds = new SigningCredentials(_key, SecurityAlgorithms.HmacSha512Signature);
