@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,6 +9,7 @@ namespace MyInspection.Core.Entities
 {
     public class ReportCheckpointAnswer
     {
+        [Key]
         public int AnswerID { get; set; }
         public string? AnswerValue { get; set; }
         public int? QuantitySampled { get; set; }

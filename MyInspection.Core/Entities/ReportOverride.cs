@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,6 +9,7 @@ namespace MyInspection.Core.Entities
 {
     public class ReportOverride
     {
+        [Key]
         public int OverrideID { get; set; }
         public string OriginalStatus { get; set; } = string.Empty;
         public string NewStatus { get; set; } = string.Empty;

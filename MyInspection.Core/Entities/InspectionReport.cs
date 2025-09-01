@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,6 +9,7 @@ namespace MyInspection.Core.Entities
 {
     public class InspectionReport
     {
+        [Key]
         public Guid ReportID { get; set; }
         public string PurchaseOrderNumber { get; set; } = string.Empty;
         public string? SBLOrderNumber { get; set; }

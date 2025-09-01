@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
@@ -9,6 +10,8 @@ namespace MyInspection.Core.Entities
 {
     public class AQLDetails
     {
+        //public int AQLDetailID { get; set; }
+        [Key] // Add this attribute
         public int AQLDetailID { get; set; }
         public int LotSizeMin { get; set; }
         public int LotSizeMax { get; set; }
